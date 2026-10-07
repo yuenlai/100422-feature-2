@@ -11,6 +11,78 @@
       </div>
     </header>
 
+    <section class="panel" data-panel="steel-quota">
+      <h3 class="panel-title">钢材可领用量（与钢板下料排料准入共用同一本账）</h3>
+      <p class="panel-sub">排料准入、本页领用登记等入口都会一并扣减可领用量。</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>规格</th>
+            <th>总量</th>
+            <th>已占用</th>
+            <th>可领用量</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="quota in quotas" :key="quota.规格">
+            <td>{{ quota.规格 }}</td>
+            <td>{{ quota.总量 }}</td>
+            <td>{{ quota.已占用 }}</td>
+            <td>{{ quota.可领 }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <form class="filter-bar quota-form" @submit.prevent="submitRequisition">
+        <label class="filter-item">
+          <span>领用规格</span>
+          <select v-model="requisitionForm.规格">
+            <option value="" disabled>请选择规格</option>
+            <option v-for="quota in quotas" :key="quota.规格" :value="quota.规格">
+              {{ quota.规格 }}（可领 {{ quota.可领 }}）
+            </option>
+          </select>
+        </label>
+        <label class="filter-item">
+          <span>领用数量</span>
+          <input v-model.number="requisitionForm.数量" type="number" min="1" placeholder="件" />
+        </label>
+        <label class="filter-item">
+          <span>关联单号</span>
+          <input v-model="requisitionForm.关联单号" placeholder="如工单/批次号" />
+        </label>
+        <button class="btn" type="submit">登记领用</button>
+      </form>
+      <p v-if="requisitionMessage" class="gate-message" :class="requisitionOk ? 'ok-text' : 'error-text'">
+        {{ requisitionMessage }}
+      </p>
+
+      <h4 class="panel-sub-title">领用流水</h4>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>来源入口</th>
+            <th>规格</th>
+            <th>数量</th>
+            <th>关联单号</th>
+            <th>登记时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in requisitions" :key="item.id">
+            <td>{{ item.来源 }}</td>
+            <td>{{ item.规格 }}</td>
+            <td>{{ item.数量 }}</td>
+            <td>{{ item.关联单号 }}</td>
+            <td>{{ formatTime(item.createdAt) }}</td>
+          </tr>
+          <tr v-if="!requisitions.length">
+            <td colspan="5" class="empty-state">暂无领用记录</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
     <div class="stat-row">
       <article v-for="item in stats" :key="item.label" class="stat-card">
         <span class="stat-label">{{ item.label }}</span>
@@ -79,6 +151,9 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
+import { listQuotas, listRequisitions, registerRequisition } from '@/api/nesting-service'
+import type { QuotaView } from '@/api/nesting-service'
+import type { SteelRequisition } from '@/data/nesting-store'
 import type { EntryRow } from '@/data/types'
 
 const meta = moduleMeta('material')
@@ -98,6 +173,34 @@ const statusSummary = computed(() =>
     count: rows.value.filter((row) => String(row.status) === status).length,
   })),
 )
+
+// ---- 钢材可领用量：与排料准入联动的其它入口 ----
+const quotas = ref<QuotaView[]>([])
+const requisitions = ref<SteelRequisition[]>([])
+const requisitionForm = ref({ 规格: '', 数量: 0, 关联单号: '' })
+const requisitionMessage = ref('')
+const requisitionOk = ref(false)
+
+function refreshQuota() {
+  quotas.value = listQuotas()
+  requisitions.value = listRequisitions()
+}
+
+function submitRequisition() {
+  requisitionMessage.value = ''
+  const result = registerRequisition({ ...requisitionForm.value, 来源: '钢材管理-领用登记' })
+  requisitionOk.value = result.ok
+  requisitionMessage.value = result.message
+  if (result.ok) {
+    requisitionForm.value = { 规格: '', 数量: 0, 关联单号: '' }
+  }
+  refreshQuota()
+}
+
+function formatTime(iso: string) {
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleString('zh-CN', { hour12: false })
+}
 
 function resetFilters() {
   filters.value = {}
@@ -133,5 +236,8 @@ function reload() {
   }
 }
 
-onMounted(reload)
+onMounted(() => {
+  reload()
+  refreshQuota()
+})
 </script>

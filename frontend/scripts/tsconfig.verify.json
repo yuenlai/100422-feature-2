@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": ["ES2020", "DOM"],
+    "outDir": "../node_modules/.cache/nesting-verify",
+    "baseUrl": "..",
+    "paths": { "@/*": ["src/*"] }
+  },
+  "include": ["../src/data/nesting-store.ts", "../src/api/nesting-service.ts"]
+}

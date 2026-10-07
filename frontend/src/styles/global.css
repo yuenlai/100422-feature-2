@@ -35,3 +35,20 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .error-text { color: #b42318; }
 .status-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 10px; font-size: 12px; color: var(--muted); }
 .legend-item { background: #eef2f7; border-radius: 999px; padding: 2px 10px; }
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+.panel-title { margin: 0 0 6px; font-size: 14px; }
+.panel-sub { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+.panel-sub-title { margin: 14px 0 6px; font-size: 13px; }
+.panel .data-table { margin-bottom: 6px; }
+.filter-item select { min-width: 140px; }
+.gate-message { margin: 8px 0 0; font-size: 13px; }
+.ok-text { color: #067647; }
+.verdict { border-radius: 999px; padding: 2px 10px; font-size: 12px; white-space: nowrap; }
+.verdict.ok { background: #dcfae6; color: #067647; }
+.verdict.review { background: #fef0c7; color: #b54708; }
+.verdict.reject { background: #fee4e2; color: #b42318; }
+.standard-editor { margin: 10px 0 12px; font-size: 13px; }
+.standard-editor summary { cursor: pointer; color: var(--brand); }
+.standard-editor .filter-bar { margin: 10px 0 0; }
+.rejudge-item { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.quota-form { margin-top: 12px; }
