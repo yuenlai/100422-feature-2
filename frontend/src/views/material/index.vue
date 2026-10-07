@@ -82,7 +82,7 @@ import {
 import type { EntryRow } from '@/data/types'
 
 const meta = moduleMeta('material')
-const columns = ["批次编号", "钢材牌号", "规格尺寸", "入库数量", "检验证书", "存放堆场", "领用记录", "批次状态"]
+const columns = ["批次编号", "钢材牌号", "规格尺寸", "入库数量", "可领用量", "检验证书", "存放堆场", "领用记录", "批次状态"]
 const actions = ["完成检验", "发放钢材", "办理退库"]
 const statuses = ["待检验", "已入库", "已发放", "已用完", "待退库"]
 const stats = [{"label": "在库钢材", "value": 0}, {"label": "已发放钢材", "value": 0}, {"label": "待检验批次", "value": 0}]

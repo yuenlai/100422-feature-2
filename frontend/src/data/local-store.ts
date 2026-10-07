@@ -8,6 +8,19 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
+// 准入上线前登记的老数据没有这些字段，读出来时补齐，页面和重判逻辑不用各自兜底。
+function migrateRows(rows: Record<string, EntryRow[]>): Record<string, EntryRow[]> {
+  for (const row of rows.cutting ?? []) {
+    row['材料利用率'] ??= '—'
+    row['准入结论'] ??= '—'
+    row['标准版本'] ??= '—'
+  }
+  for (const row of rows.material ?? []) {
+    row['可领用量'] ??= Number(row['入库数量']) || 0
+  }
+  return rows
+}
+
 function readStorage(): Record<string, EntryRow[]> {
   const fallback = clone(SEED_ROWS)
   if (typeof window === 'undefined' || !window.localStorage) {
@@ -20,7 +33,7 @@ function readStorage(): Record<string, EntryRow[]> {
   }
   try {
     const parsed = JSON.parse(raw) as Record<string, EntryRow[]>
-    return { ...fallback, ...parsed }
+    return migrateRows({ ...fallback, ...parsed })
   } catch {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback))
     return fallback
